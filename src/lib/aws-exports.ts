@@ -6,7 +6,7 @@ export const awsconf = {
       defaultAuthMode: "apiKey",
       endpoint: import.meta.env.VITE_API_ENDPOINT!,
       region: "us-east-1",
-      apiKey: import.meta.env.VITE_API_KEY,
+      apiKey: import.meta.env.VITE_API_KEY!,
     },
   },
 } satisfies ResourcesConfig;
