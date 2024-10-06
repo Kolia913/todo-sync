@@ -1,0 +1,194 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+  # Create a DynamoDB Table for Todos
+  TodoTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName: "TodoTable"
+      AttributeDefinitions:
+        - AttributeName: "id"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "id"
+          KeyType: "HASH"
+      BillingMode: PAY_PER_REQUEST
+
+  # AppSync GraphQL API
+  AppSyncApi:
+    Type: "AWS::AppSync::GraphQLApi"
+    Properties:
+      Name: "TodoAppSyncApi"
+      AuthenticationType: API_KEY
+
+  # AppSync API Key
+  AppSyncApiKey:
+    Type: "AWS::AppSync::ApiKey"
+    Properties:
+      ApiId: !GetAtt AppSyncApi.ApiId
+
+  # AppSync Schema
+  AppSyncSchema:
+    Type: "AWS::AppSync::GraphQLSchema"
+    Properties:
+      ApiId: !GetAtt AppSyncApi.ApiId
+      Definition: |
+        type Todo {
+          id: ID!
+          title: String!
+          description: String
+          createdAt: String!
+          updatedAt: String!
+          completed: Boolean!
+        }
+
+        type Query {
+          getTodos: [Todo]
+        }
+
+        type Mutation {
+          createTodo(title: String!, completed: Boolean!): Todo
+          updateTodo(id: ID!, title: String!, description: String!, updatedAt: String!, completed: Boolean!): Todo
+          deleteTodo(id: ID!): Todo
+        }
+
+        type Subscription {
+          onCreateTodo: Todo
+            @aws_subscribe(mutations: ["createTodo"])
+          onUpdateTodo: Todo
+            @aws_subscribe(mutations: ["updateTodo"])
+          onDeleteTodo: Todo
+            @aws_subscribe(mutations: ["deleteTodo"])
+        }
+
+        schema {
+          query: Query
+          mutation: Mutation
+          subscription: Subscription
+        }
+
+  # DataSource: DynamoDB
+  AppSyncDynamoDBDataSource:
+    Type: "AWS::AppSync::DataSource"
+    Properties:
+      ApiId: !GetAtt AppSyncApi.ApiId
+      Name: "TodoDynamoDataSource"
+      Type: "AMAZON_DYNAMODB"
+      DynamoDBConfig:
+        TableName: !Ref TodoTable
+        AwsRegion: !Ref "AWS::Region"
+      ServiceRoleArn: !GetAtt AppSyncServiceRole.Arn
+
+  # AppSync Resolver for Query
+  GetTodosResolver:
+    Type: "AWS::AppSync::Resolver"
+    Properties:
+      ApiId: !GetAtt AppSyncApi.ApiId
+      TypeName: "Query"
+      FieldName: "getTodos"
+      DataSourceName: !GetAtt AppSyncDynamoDBDataSource.Name
+      RequestMappingTemplate: |
+        {
+          "version": "2017-02-28",
+          "operation": "Scan"
+        }
+      ResponseMappingTemplate: |
+        $util.toJson($context.result.items)
+
+  # Resolver for Mutation: Create Todo
+  CreateTodoResolver:
+    Type: "AWS::AppSync::Resolver"
+    Properties:
+      ApiId: !GetAtt AppSyncApi.ApiId
+      TypeName: "Mutation"
+      FieldName: "createTodo"
+      DataSourceName: !GetAtt AppSyncDynamoDBDataSource.Name
+      RequestMappingTemplate: |
+        {
+          "version": "2017-02-28",
+          "operation": "PutItem",
+          "key": {
+            "id": {
+              "S": "$util.autoId()"
+            }
+          },
+          "attributeValues": {
+            "title": $util.dynamodb.toDynamoDBJson($ctx.args.title),
+            "completed": $util.dynamodb.toDynamoDBJson($ctx.args.completed)
+          }
+        }
+      ResponseMappingTemplate: |
+        $util.toJson($context.result)
+
+  # Resolver for Mutation: Update Todo
+  UpdateTodoResolver:
+    Type: "AWS::AppSync::Resolver"
+    Properties:
+      ApiId: !GetAtt AppSyncApi.ApiId
+      TypeName: "Mutation"
+      FieldName: "updateTodo"
+      DataSourceName: !GetAtt AppSyncDynamoDBDataSource.Name
+      RequestMappingTemplate: |
+        {
+          "version": "2017-02-28",
+          "operation": "UpdateItem",
+          "key": {
+            "id": {
+              "S": "$ctx.args.id"
+            }
+          },
+          "update": {
+            "expression": "set completed = :completed",
+            "expressionValues": {
+              ":completed": $util.dynamodb.toDynamoDBJson($ctx.args.completed)
+            }
+          }
+        }
+      ResponseMappingTemplate: |
+        $util.toJson($context.result)
+
+  # Resolver for Mutation: Delete Todo
+  DeleteTodoResolver:
+    Type: "AWS::AppSync::Resolver"
+    Properties:
+      ApiId: !GetAtt AppSyncApi.ApiId
+      TypeName: "Mutation"
+      FieldName: "deleteTodo"
+      DataSourceName: !GetAtt AppSyncDynamoDBDataSource.Name
+      RequestMappingTemplate: |
+        {
+          "version": "2017-02-28",
+          "operation": "DeleteItem",
+          "key": {
+            "id": {
+              "S": "$ctx.args.id"
+            }
+          }
+        }
+      ResponseMappingTemplate: |
+        $util.toJson($context.result)
+
+  # IAM Role for AppSync
+  AppSyncServiceRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "appsync.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: "AppSyncDynamoDBAccess"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "dynamodb:Query"
+                  - "dynamodb:Scan"
+                  - "dynamodb:GetItem"
+                  - "dynamodb:PutItem"
+                  - "dynamodb:UpdateItem"
+                  - "dynamodb:DeleteItem"
+                Resource: !GetAtt TodoTable.Arn

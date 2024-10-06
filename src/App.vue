@@ -1,10 +1,17 @@
 <script setup lang="ts">
-import Todos from './components/Todos.vue'
+import { client } from "@/lib/gql-client";
+import { getTodos } from "./graphql/queries";
+import { onMounted } from "vue";
+
+onMounted(() => {
+  client.graphql({
+    query: getTodos,
+  });
+});
 </script>
 
 <template>
   <main>
-    <Todos />
+    <p>Hello World!</p>
   </main>
 </template>
-

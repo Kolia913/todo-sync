@@ -1,26 +1,22 @@
-## AWS Amplify Vue.js Starter Template
+## Create CloudFormation stack
 
-This repository provides a starter template for creating applications using Vue.js and AWS Amplify, emphasizing easy setup for authentication, API, and database capabilities.
+`aws configure` - Setup aws CLI
 
-## Overview
+`aws cloudformation create-stack \
+  --stack-name TodoAppStack \
+  --template-body file://cloudformation.yml \
+  --capabilities CAPABILITY_NAMED_IAM` - create cloudformation stack
+`aws cloudformation describe-stacks --stack-name TodoAppStack` - Check if stack created
 
-This template equips you with a foundational Vue application integrated with AWS Amplify, streamlined for scalability and performance. It is ideal for developers looking to jumpstart their project with pre-configured AWS services like Cognito, AppSync, and DynamoDB.
+`aws cloudformation update-stack \
+  --stack-name TodoAppStack \
+  --template-body file://cloudformation.yml \
+  --capabilities CAPABILITY_NAMED_IAM` - opdate stack(Optional)
 
-## Features
+## Amplify setup
 
-- **Authentication**: Setup with Amazon Cognito for secure user authentication.
-- **API**: Ready-to-use GraphQL endpoint with AWS AppSync.
-- **Database**: Real-time database powered by Amazon DynamoDB.
+`npm install -g @aws-amplify/cli@latest` - Install Amplify
 
-## Deploying to AWS
+`amplify configure` - Setup Amplify CLI
 
-For detailed instructions on deploying your application, refer to the [deployment section](https://docs.amplify.aws/vue/start/quickstart/#deploy-a-fullstack-app-to-aws) of our documentation.
-
-
-## Security
-
-See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
-
-## License
-
-This library is licensed under the MIT-0 License. See the LICENSE file.
+`npx ampx sandbox` - to generate amplify_outputs.json
