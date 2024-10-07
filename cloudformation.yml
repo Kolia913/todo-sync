@@ -28,9 +28,9 @@ Resources:
 
       EnvironmentVariables:
         - Name: VITE_API_KEY
-          Value: "da2-7qdj75qbx5bt5niuphnmlgzvke"
+          Value: ""
         - Name: VITE_API_ENDPOINT
-          Value: "https://yesh56vc5rdpvdfru76uhs6isu.appsync-api.us-east-1.amazonaws.com/graphql"
+          Value: ""
         # Add more environment variables as needed based on your .env file
 
       CustomRules:
