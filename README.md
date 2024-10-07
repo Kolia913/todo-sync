@@ -7,7 +7,7 @@
   --template-body file://cloudformation.yml \
   --capabilities CAPABILITY_NAMED_IAM` - create cloudformation stack
 
-`aws cloudformation describe-stacks --stack-name TodoAppStack` - Check stack status
+`aws cloudformation describe-stacks --stack-name cloudformation` - Check stack status
 
 `aws cloudformation update-stack \
   --stack-name TodoAppStack \
@@ -34,4 +34,4 @@
 
 ## Deploy
 
-`chmod +x deploy.sh` - If no required permissions
+`aws cloudformation deploy --template-file cloudformation.yml --stack-name TodoAppStack --capabilities CAPABILITY_NAMED_IAM` - deploy stack
