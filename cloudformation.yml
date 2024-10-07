@@ -1,5 +1,84 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Resources:
+  # Amplify App
+  AmplifyApp:
+    Type: "AWS::Amplify::App"
+    Properties:
+      Name: "MyAmplifyApp"
+      Repository: "https://github.com/Kolia913/todo-sync" # Replace with your repo
+      OAuthToken: "<GitHubOAuthToken>" # Replace with your GitHub OAuth Token
+      AccessToken: "<GitHubAccessToken>" # Optional - Replace with a GitHub access token if required
+      BuildSpec: |
+        version: 1.0
+        frontend:
+          phases:
+            preBuild:
+              commands:
+                - npm install
+            build:
+              commands:
+                - npm run build
+          artifacts:
+            baseDirectory: dist  # Adjust based on your app's build output directory
+            files:
+              - '**/*'
+          cache:
+            paths:
+              - node_modules/**/*
+
+      EnvironmentVariables:
+        - Name: VARIABLE_NAME_1
+          Value: "value1"
+        - Name: VARIABLE_NAME_2
+          Value: "value2"
+        # Add more environment variables as needed based on your .env file
+
+      CustomRules:
+        - Source: "/<*>"
+          Target: "/index.html"
+          Status: "200"
+
+      AutoBranchCreationConfig:
+        EnableAutoBranchCreation: true
+        EnableAutoBuild: true
+        PullRequestEnvironmentName: "PR-Env"
+        Stage: "PRODUCTION"
+
+  # Amplify Branch for main branch
+  AmplifyBranch:
+    Type: "AWS::Amplify::Branch"
+    Properties:
+      AppId: !GetAtt AmplifyApp.AppId
+      BranchName: "main" # Replace with your default branch name
+      EnableAutoBuild: true
+      Stage: "PRODUCTION"
+
+  # IAM Role for Amplify to Access Resources
+  AmplifyServiceRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "amplify.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: "AmplifyAccessPolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "dynamodb:*"
+                  - "appsync:*"
+                  - "s3:*"
+                  - "cloudfront:*"
+                  - "codebuild:*"
+                  - "lambda:*"
+                  - "logs:*"
+                Resource: "*"
   # Create a DynamoDB Table for Todos
   TodoTable:
     Type: "AWS::DynamoDB::Table"
@@ -36,8 +115,8 @@ Resources:
           id: ID!
           title: String!
           description: String
-          createdAt: String!
-          updatedAt: String!
+          createdAt: String
+          updatedAt: String
           completed: Boolean!
         }
 
@@ -46,7 +125,7 @@ Resources:
         }
 
         type Mutation {
-          createTodo(title: String!, completed: Boolean!): Todo
+          createTodo(title: String!, completed: Boolean!, createdAt: String!, updatedAt: String!, description: String): Todo
           updateTodo(id: ID!, title: String!, description: String!, updatedAt: String!, completed: Boolean!): Todo
           deleteTodo(id: ID!): Todo
         }
@@ -113,7 +192,10 @@ Resources:
           },
           "attributeValues": {
             "title": $util.dynamodb.toDynamoDBJson($ctx.args.title),
-            "completed": $util.dynamodb.toDynamoDBJson($ctx.args.completed)
+            "description": $util.dynamodb.toDynamoDBJson($ctx.args.description),
+            "completed": $util.dynamodb.toDynamoDBJson($ctx.args.completed),
+            "createdAt": $util.dynamodb.toDynamoDBJson($ctx.args.createdAt),
+            "updatedAt": $util.dynamodb.toDynamoDBJson($ctx.args.updatedAt)
           }
         }
       ResponseMappingTemplate: |
@@ -137,9 +219,12 @@ Resources:
             }
           },
           "update": {
-            "expression": "set completed = :completed",
+            "expression": "set title = :title, description = :description, completed = :completed, updatedAt = :updatedAt",
             "expressionValues": {
-              ":completed": $util.dynamodb.toDynamoDBJson($ctx.args.completed)
+              ":title": $util.dynamodb.toDynamoDBJson($ctx.args.title),
+              ":description": $util.dynamodb.toDynamoDBJson($ctx.args.description),
+              ":completed": $util.dynamodb.toDynamoDBJson($ctx.args.completed),
+              ":updatedAt": $util.dynamodb.toDynamoDBJson($ctx.args.updatedAt)
             }
           }
         }

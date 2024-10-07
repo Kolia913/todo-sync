@@ -8,8 +8,20 @@ type GeneratedMutation<InputType, OutputType> = string & {
   __generatedMutationOutput: OutputType;
 };
 
-export const createTodo = /* GraphQL */ `mutation CreateTodo($title: String!, $completed: Boolean!) {
-  createTodo(title: $title, completed: $completed) {
+export const createTodo = /* GraphQL */ `mutation CreateTodo(
+  $title: String!
+  $completed: Boolean!
+  $createdAt: String!
+  $updatedAt: String!
+  $description: String
+) {
+  createTodo(
+    title: $title
+    completed: $completed
+    createdAt: $createdAt
+    updatedAt: $updatedAt
+    description: $description
+  ) {
     id
     title
     description

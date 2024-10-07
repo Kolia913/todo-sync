@@ -7,7 +7,7 @@
   --template-body file://cloudformation.yml \
   --capabilities CAPABILITY_NAMED_IAM` - create cloudformation stack
 
-`aws cloudformation describe-stacks --stack-name TodoAppStack` - Check if stack created
+`aws cloudformation describe-stacks --stack-name TodoAppStack` - Check stack status
 
 `aws cloudformation update-stack \
   --stack-name TodoAppStack \
@@ -19,3 +19,19 @@
 `npm install -g @aws-amplify/cli@latest` - Install Amplify
 
 `amplify configure` - Setup Amplify CLI
+
+### ONLY If updated models or resolvers (to auto generate queries, mutations, subscriptions)
+
+1. Delete all previously generated files, related to graphql (./src/graphql/\*\*, ./src/API.ts, ./grapghqlconfig.yml, schema.graphql, schema.json, schema.ts etc.)
+2. `npx @aws-amplify/cli codegen add --apiId xkye5pltdff53mniqvcp5ydfem --region us-east-1`
+3. `npx @aws-amplify/cli codegen`
+4. `aws appsync get-introspection-schema --api-id xkye5pltdff53mniqvcp5ydfem --region us-east-1 --format SDL schema.graphql`
+5. `npx @aws-amplify/cli codegen models \
+--model-schema schema.graphql \
+--target typescript \
+--output-dir ./`
+6. Happy hacking :)
+
+## Deploy
+
+`chmod +x deploy.sh` - If no required permissions

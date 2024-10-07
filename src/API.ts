@@ -7,14 +7,17 @@ export type Todo = {
   id: string,
   title: string,
   description?: string | null,
-  createdAt: string,
-  updatedAt: string,
+  createdAt?: string | null,
+  updatedAt?: string | null,
   completed: boolean,
 };
 
 export type CreateTodoMutationVariables = {
   title: string,
   completed: boolean,
+  createdAt: string,
+  updatedAt: string,
+  description?: string | null,
 };
 
 export type CreateTodoMutation = {
@@ -23,8 +26,8 @@ export type CreateTodoMutation = {
     id: string,
     title: string,
     description?: string | null,
-    createdAt: string,
-    updatedAt: string,
+    createdAt?: string | null,
+    updatedAt?: string | null,
     completed: boolean,
   } | null,
 };
@@ -43,8 +46,8 @@ export type UpdateTodoMutation = {
     id: string,
     title: string,
     description?: string | null,
-    createdAt: string,
-    updatedAt: string,
+    createdAt?: string | null,
+    updatedAt?: string | null,
     completed: boolean,
   } | null,
 };
@@ -59,8 +62,8 @@ export type DeleteTodoMutation = {
     id: string,
     title: string,
     description?: string | null,
-    createdAt: string,
-    updatedAt: string,
+    createdAt?: string | null,
+    updatedAt?: string | null,
     completed: boolean,
   } | null,
 };
@@ -74,8 +77,8 @@ export type GetTodosQuery = {
     id: string,
     title: string,
     description?: string | null,
-    createdAt: string,
-    updatedAt: string,
+    createdAt?: string | null,
+    updatedAt?: string | null,
     completed: boolean,
   } | null > | null,
 };
@@ -89,8 +92,8 @@ export type OnCreateTodoSubscription = {
     id: string,
     title: string,
     description?: string | null,
-    createdAt: string,
-    updatedAt: string,
+    createdAt?: string | null,
+    updatedAt?: string | null,
     completed: boolean,
   } | null,
 };
@@ -104,8 +107,8 @@ export type OnUpdateTodoSubscription = {
     id: string,
     title: string,
     description?: string | null,
-    createdAt: string,
-    updatedAt: string,
+    createdAt?: string | null,
+    updatedAt?: string | null,
     completed: boolean,
   } | null,
 };
@@ -119,8 +122,8 @@ export type OnDeleteTodoSubscription = {
     id: string,
     title: string,
     description?: string | null,
-    createdAt: string,
-    updatedAt: string,
+    createdAt?: string | null,
+    updatedAt?: string | null,
     completed: boolean,
   } | null,
 };

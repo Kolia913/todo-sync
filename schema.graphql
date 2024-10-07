@@ -5,7 +5,7 @@ schema {
 }
 
 type Mutation {
-  createTodo(completed: Boolean!, title: String!): Todo
+  createTodo(completed: Boolean!, createdAt: String!, description: String, title: String!, updatedAt: String!): Todo
   deleteTodo(id: ID!): Todo
   updateTodo(completed: Boolean!, description: String!, id: ID!, title: String!, updatedAt: String!): Todo
 }
@@ -22,9 +22,9 @@ type Subscription {
 
 type Todo {
   completed: Boolean!
-  createdAt: String!
+  createdAt: String
   description: String
   id: ID!
   title: String!
-  updatedAt: String!
+  updatedAt: String
 }

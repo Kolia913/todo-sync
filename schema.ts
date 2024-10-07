@@ -18,7 +18,7 @@ export const schema: Schema = {
                     "name": "createdAt",
                     "isArray": false,
                     "type": "String",
-                    "isRequired": true,
+                    "isRequired": false,
                     "attributes": []
                 },
                 "description": {
@@ -46,12 +46,12 @@ export const schema: Schema = {
                     "name": "updatedAt",
                     "isArray": false,
                     "type": "String",
-                    "isRequired": true,
+                    "isRequired": false,
                     "attributes": []
                 }
             }
         }
     },
     "codegenVersion": "3.4.4",
-    "version": "199f947570aa543a86e14a8bc72e2e22"
+    "version": "d7ade7d41c9498bc8054f12ab7710833"
 };
