@@ -1,14 +1,17 @@
-version: 1
+version: 1.0
 frontend:
   phases:
+    preBuild:
+      commands:
+        - npm i npm-run-all --save-dev
+        - npm install
     build:
       commands:
         - npm run build
   artifacts:
-    baseDirectory: dist
+    baseDirectory: dist # Adjust based on your app's build output directory
     files:
       - "**/*"
   cache:
     paths:
-      - .npm/**/*
       - node_modules/**/*
