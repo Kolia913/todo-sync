@@ -33,11 +33,6 @@ Resources:
           Value: ""
         # Add more environment variables as needed based on your .env file
 
-      CustomRules:
-        - Source: "/<*>"
-          Target: "/index.html"
-          Status: "200"
-
       AutoBranchCreationConfig:
         EnableAutoBranchCreation: true
         EnableAutoBuild: true
