@@ -27,9 +27,9 @@ Resources:
               - node_modules/**/*
 
       EnvironmentVariables:
-        - Name: VARIABLE_NAME_1
+        - Name: VITE_API_KEY
           Value: "value1"
-        - Name: VARIABLE_NAME_2
+        - Name: VITE_API_ENDPOINT
           Value: "value2"
         # Add more environment variables as needed based on your .env file
 
